@@ -1,0 +1,62 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.4'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id 'com.diffplug.spotless' version '6.19.0'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+    implementation 'com.zaxxer:HikariCP:4.0.3'
+    
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+spotless {
+    java {
+        // Use the Google Java format
+        googleJavaFormat()
+        
+        // Or use a specific version of Google Java format
+        // googleJavaFormat('1.15.0')
+
+        // Remove unused imports
+        removeUnusedImports()
+
+        // Sort imports
+        importOrder 'java', 'javax', 'org', 'com', ''
+
+        // Apply custom rules
+        custom 'Lambda fix', { it.replace('} )', '})').replace('} ,', '},') }
+
+        // Enforce newline at end of file
+        endWithNewline()
+
+        // Add license header
+        licenseHeader '/* (C)$YEAR */'
+    }
+}
