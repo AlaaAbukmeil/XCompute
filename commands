@@ -1,0 +1,10 @@
+//zookeeper
+bin/zookeeper-server-start.sh config/zookeeper.properties
+//kafka server
+bin/kafka-server-start.sh config/server.properties
+//to see all topics
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+// pretty
+./gradlew :spotlessApply
+//build
+./gradlew clean build   

@@ -1,7 +1,6 @@
 /* (C)2024 */
 package com.example.exchange.service;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -89,45 +88,14 @@ public class AuthService {
   }
 
   @GetMapping("/auth")
-  public ResponseEntity<String> validateCookie(HttpServletRequest request) {
+  public int validateCookie(HttpServletRequest request) {
     try {
-      // 1. Extract the cookie
-      Cookie[] cookies = request.getCookies();
-      if (cookies == null) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No cookies found");
-      }
-
-      Cookie xComputeCookie = null;
-      for (Cookie cookie : cookies) {
-        if ("XCompute".equals(cookie.getName())) {
-          xComputeCookie = cookie;
-          break;
-        }
-      }
-
-      if (xComputeCookie == null) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("XCompute cookie not found");
-      }
-
-      // 2. Decode the cookie value
-      String decodedValue = URLDecoder.decode(xComputeCookie.getValue(), StandardCharsets.UTF_8);
-
-      // 3. Parse the JSON content
-      CookieModel cookieContent = objectMapper.readValue(decodedValue, CookieModel.class);
-
-      // 4. Validate the token
-      if (jwtUtil.validateToken(cookieContent.getToken())) {
-        return ResponseEntity.status(HttpStatus.OK).body("Cookie is valid");
-      } else {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
-      }
-
+      int result = AuthModels.validateCookie(request, objectMapper, jwtUtil);
+      return result;
     } catch (JwtException e) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .body("JWT validation failed: " + e.getMessage());
+      return 401;
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("An error occurred: " + e.getMessage());
+      return 401;
     }
   }
 

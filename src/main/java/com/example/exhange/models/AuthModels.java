@@ -1,6 +1,16 @@
 /* (C)2024 */
 package com.example.exchange.model;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
+import com.example.exchange.util.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.jsonwebtoken.JwtException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+
 public class AuthModels {
 
   public static class LoginRequest {
@@ -86,6 +96,47 @@ public class AuthModels {
     @Override
     public String toString() {
       return "SignupRequest{" + "email='" + email + '\'' + ", password='[PROTECTED]'" + '}';
+    }
+  }
+
+  public static int validateCookie(
+      HttpServletRequest request, ObjectMapper objectMapper, JwtUtil jwtUtil) {
+    try {
+      // 1. Extract the cookie
+      Cookie[] cookies = request.getCookies();
+      if (cookies == null) {
+        return 401;
+      }
+
+      Cookie xComputeCookie = null;
+      for (Cookie cookie : cookies) {
+        if ("XCompute".equals(cookie.getName())) {
+          xComputeCookie = cookie;
+          break;
+        }
+      }
+
+      if (xComputeCookie == null) {
+        return 401;
+      }
+
+      // 2. Decode the cookie value
+      String decodedValue = URLDecoder.decode(xComputeCookie.getValue(), StandardCharsets.UTF_8);
+
+      // 3. Parse the JSON content
+      CookieModel cookieContent = objectMapper.readValue(decodedValue, CookieModel.class);
+
+      // 4. Validate the token
+      if (jwtUtil.validateToken(cookieContent.getToken())) {
+        return 200;
+      } else {
+        return 401;
+      }
+
+    } catch (JwtException e) {
+      return 404;
+    } catch (Exception e) {
+      return 404;
     }
   }
 }

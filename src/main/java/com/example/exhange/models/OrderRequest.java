@@ -1,8 +1,6 @@
 /* (C)2024 */
 package com.example.exchange.model;
 
-import java.math.BigDecimal;
-
 public class OrderRequest {
   public enum OrderType {
     BUY,
@@ -10,7 +8,17 @@ public class OrderRequest {
   }
 
   public OrderType type;
-  public BigDecimal notionalAmount;
+  public int notionalAmount;
+  public String id;
+
+  public OrderRequest() {}
+
+  // Constructor with fields
+  public OrderRequest(OrderType type, int notionalAmount, String id) {
+    this.type = type;
+    this.notionalAmount = notionalAmount;
+    this.id = id;
+  }
 
   @Override
   public String toString() {
