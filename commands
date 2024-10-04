@@ -8,3 +8,5 @@ bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
 ./gradlew :spotlessApply
 //build
 ./gradlew clean build   
+//sql
+brew services start postgresql
