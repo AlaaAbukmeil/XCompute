@@ -20,6 +20,6 @@ public class KafkaProducer {
 
   public void sendOrder(String topic, OrderRequest order) throws JsonProcessingException {
     String orderJson = objectMapper.writeValueAsString(order);
-    kafkaTemplate.send(topic, order.id, orderJson);
+    kafkaTemplate.send(topic, String.valueOf(order.id), orderJson);
   }
 }

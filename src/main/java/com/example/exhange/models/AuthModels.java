@@ -1,16 +1,6 @@
 /* (C)2024 */
 package com.example.exchange.model;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-
-import com.example.exchange.util.JwtUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.jsonwebtoken.JwtException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-
 public class AuthModels {
 
   public static class LoginRequest {
@@ -98,5 +88,4 @@ public class AuthModels {
       return "SignupRequest{" + "email='" + email + '\'' + ", password='[PROTECTED]'" + '}';
     }
   }
-
 }

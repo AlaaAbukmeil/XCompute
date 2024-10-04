@@ -61,8 +61,7 @@ public class PlaceOrder {
   @PostMapping("/generate")
   @RequiresAuth
   public ResponseEntity<String> generateOrders(@RequestParam(defaultValue = "1000") int count) {
-
-    orderService.generateAndSendOrders(count);
-    return ResponseEntity.ok("Generated and sent " + count + " orders");
+    orderService.generateThousandTrades();
+    return ResponseEntity.ok("Done");
   }
 }

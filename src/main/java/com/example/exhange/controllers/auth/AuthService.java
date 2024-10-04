@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.exchange.annotation.RequiresAuth;
 import com.example.exchange.model.AuthModels;
 import com.example.exchange.model.CookieModel;
 import com.example.exchange.repo.RepositoryExample;
@@ -88,10 +89,11 @@ public class AuthService {
   }
 
   @GetMapping("/auth")
+  @RequiresAuth
   public int validateCookie(HttpServletRequest request) {
     try {
-      int result = AuthModels.validateCookie(request, objectMapper, jwtUtil);
-      return result;
+      return 200;
+
     } catch (JwtException e) {
       return 401;
     } catch (Exception e) {
