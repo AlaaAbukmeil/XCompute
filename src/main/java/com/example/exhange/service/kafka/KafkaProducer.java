@@ -22,4 +22,10 @@ public class KafkaProducer {
     String orderJson = objectMapper.writeValueAsString(order);
     kafkaTemplate.send(topic, String.valueOf(order.id), orderJson);
   }
+
+  public void printOrders(String topic) throws Exception {
+    // Assuming you want to send a simple message
+    String message = "Printing orders for topic: " + topic;
+    kafkaTemplate.send(topic, message);
+  }
 }

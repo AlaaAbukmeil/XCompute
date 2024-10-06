@@ -46,12 +46,16 @@ dependencies {
     
     // Jedis (Redis client)
     implementation 'redis.clients:jedis'
-    
+
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
 spotless {
     java {
         // Use the Google Java format

@@ -12,11 +12,9 @@ import org.springframework.stereotype.Service;
 
 import com.example.exchange.config.OrderBookConfig;
 import com.example.exchange.model.OrderRequest;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 @Service
 public class OrderService {
-  private final KafkaProducer producerService;
   private final RedisTemplate<String, String> redisTemplate;
   private final Map<String, OrderBook> orderBooks;
   private static final String REDIS_KEY_PREFIX = "order:";
@@ -25,42 +23,38 @@ public class OrderService {
   private static final Random random = new Random();
 
   public OrderService(
-      KafkaProducer producerService,
-      RedisTemplate<String, String> redisTemplate,
-      OrderBookConfig orderBookConfig) {
-    this.producerService = producerService;
+      RedisTemplate<String, String> redisTemplate, OrderBookConfig orderBookConfig) {
     this.redisTemplate = redisTemplate;
     this.orderBooks = orderBookConfig.getOrderBooks();
   }
 
   public void generateAndSendOrders(int count) {
     for (int i = 0; i < count; i++) {
-        OrderRequest order = generateRandomOrder();
-        String redisKey = REDIS_KEY_PREFIX + order.id;
+      OrderRequest order = generateRandomOrder();
+      String redisKey = REDIS_KEY_PREFIX + order.id;
 
-        Boolean isNewOrder = redisTemplate.opsForValue().setIfAbsent(redisKey, "1", ORDER_EXPIRATION);
+      Boolean isNewOrder = redisTemplate.opsForValue().setIfAbsent(redisKey, "1", ORDER_EXPIRATION);
 
-        if (Boolean.TRUE.equals(isNewOrder)) {
-            try {
-                producerService.sendOrder("orders", order);
-                OrderBook orderBook = orderBooks.get(order.symbol);
-    System.out.println("Inserting order for symbol: " + order.symbol );
+      if (Boolean.TRUE.equals(isNewOrder)) {
+        try {
+          OrderBook orderBook = orderBooks.get(order.symbol);
+          System.out.println("Inserting order for symbol: " + order.symbol);
 
-                if (orderBook != null) {
-                    List<Trade> trades = orderBook.insertOrder(order);
-                    System.out.println("Sent order: " + order.id + " for " + order.symbol);
-                    printTrades(trades);
-                } else {
-                    System.out.println("Error: No order book found for symbol " + order.symbol);
-                }
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("Duplicate order detected: " + order.id);
+          if (orderBook != null) {
+            List<Trade> trades = orderBook.insertOrder(order);
+            System.out.println("Sent order: " + order.id + " for " + order.symbol);
+            printTrades(trades);
+          } else {
+            System.out.println("Error: No order book found for symbol " + order.symbol);
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
         }
+      } else {
+        System.out.println("Duplicate order detected: " + order.id);
+      }
     }
-}
+  }
 
   private OrderRequest generateRandomOrder() {
     String symbol = SYMBOLS[random.nextInt(SYMBOLS.length)];
@@ -84,7 +78,7 @@ public class OrderService {
     }
   }
 
-  private void printAllOrderBookStatuses() {
+  public void printAllOrderBookStatuses() {
     for (String symbol : SYMBOLS) {
       OrderBook orderBook = orderBooks.get(symbol);
       System.out.println(symbol + " Order Book Status:");
@@ -93,6 +87,31 @@ public class OrderService {
       System.out.println("Buy Orders Size: " + orderBook.getBuyOrdersSize());
       System.out.println("Sell Orders Size: " + orderBook.getSellOrdersSize());
       System.out.println();
+    }
+  }
+
+  public void processOrder(OrderRequest order) {
+    String redisKey = REDIS_KEY_PREFIX + order.id;
+
+    Boolean isNewOrder = redisTemplate.opsForValue().setIfAbsent(redisKey, "1", ORDER_EXPIRATION);
+
+    if (Boolean.TRUE.equals(isNewOrder)) {
+      try {
+        OrderBook orderBook = orderBooks.get(order.symbol);
+        System.out.println("Inserting order for symbol: " + order.symbol);
+
+        if (orderBook != null) {
+          List<Trade> trades = orderBook.insertOrder(order);
+          System.out.println("Sent order: " + order.id + " for " + order.symbol);
+          printTrades(trades);
+        } else {
+          System.out.println("Error: No order book found for symbol " + order.symbol);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    } else {
+      System.out.println("Duplicate order detected: " + order.id);
     }
   }
 }

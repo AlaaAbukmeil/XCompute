@@ -14,9 +14,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class KafkaConsumer {
   private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
   private final ObjectMapper objectMapper;
+  private final OrderService orderService;
 
-  public KafkaConsumer(ObjectMapper objectMapper) {
+  public KafkaConsumer(ObjectMapper objectMapper, OrderService orderService) {
     this.objectMapper = objectMapper;
+    this.orderService = orderService;
   }
 
   @KafkaListener(topics = "test", groupId = "myGroup")
@@ -27,7 +29,11 @@ public class KafkaConsumer {
   @KafkaListener(topics = "orders", groupId = "order-processing-group")
   public void processOrder(String orderJson) throws JsonProcessingException {
     OrderRequest order = objectMapper.readValue(orderJson, OrderRequest.class);
-    // Process the order (in this example, we're just logging it)
-    logger.info("Processing order: {}", order);
+    orderService.processOrder(order);
+  }
+
+  @KafkaListener(topics = "print-order-books", groupId = "order-processing-group")
+  public void printOrderBooks() throws Exception {
+    orderService.printAllOrderBookStatuses();
   }
 }
