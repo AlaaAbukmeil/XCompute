@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.exchange.annotation.RequiresAuth;
 import com.example.exchange.config.OrderBookConfig;
+import com.example.exchange.model.OrderBookSummary;
 import com.example.exchange.model.OrderRequest;
 import com.example.exchange.model.User;
 import com.example.exchange.repo.RepositoryExample;
@@ -112,6 +113,20 @@ public class PlaceOrder {
     try {
       OrderBook orderBook = orderBookConfig.getOrderBook(symbol);
       String jsonOrderBook = objectMapper.writeValueAsString(orderBook);
+      return ResponseEntity.ok(jsonOrderBook);
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body("Error submitting order");
+    }
+  }
+
+  @GetMapping("/books")
+  @RequiresAuth
+  public ResponseEntity<String> getBooksSummary(
+      @RequestParam(defaultValue = "AAPL") String symbol) {
+    try {
+      OrderBook orderBook = orderBookConfig.getOrderBook(symbol);
+      OrderBookSummary orderBookSummary = orderBook.getOrderBookSummary();
+      String jsonOrderBook = objectMapper.writeValueAsString(orderBookSummary);
       return ResponseEntity.ok(jsonOrderBook);
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body("Error submitting order");

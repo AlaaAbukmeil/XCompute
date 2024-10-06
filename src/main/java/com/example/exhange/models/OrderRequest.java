@@ -24,6 +24,10 @@ public class OrderRequest {
     this.symbol = symbol;
   }
 
+  public int getNotionalAmount() {
+    return notionalAmount;
+  }
+
   public long getPrice() {
     return price;
   }

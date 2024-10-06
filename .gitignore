@@ -40,3 +40,5 @@ src/main/resources/application.properties
 .env
 
 test.py
+
+productionTesting/

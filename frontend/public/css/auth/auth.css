@@ -1,0 +1,88 @@
+.deleteButton {
+  display: flex;
+  margin-left: auto;
+  margin-right: 20px;
+}
+
+.success-text {
+  text-align: center;
+  color: green;
+}
+
+.buttons {
+  display: flex;
+}
+.auth-btn-1 {
+  font-size: 15px;
+}
+.table-add-user {
+  width: 150%;
+}
+.users-container {
+  margin-top: 5px;
+}
+
+.formTextInput {
+  /* display: flex; */
+  border-radius: 6px;
+  padding: 5px;
+  margin: 5px;
+  width: 500px;
+}
+
+.card {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.container-button {
+  width: 100%;
+  margin: 0px auto;
+  text-align: center;
+}
+.auth-btn-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+.btn-auth {
+  width: 100%;
+  text-align: left;
+  margin: 0 0 0 0;
+}
+.auth-btn-2 {
+  background-color: grey;
+}
+.auth-btn-2 {
+  margin-left: 10px;
+}
+.login-card {
+  width: 550px;
+  background-color: white;
+  border-radius: 12px;
+  padding: 24px;
+}
+.auth-name-container {
+  margin-left: 10px;
+}
+.auth-name-container h1 {
+  font-size: 20px;
+  font-weight: 400;
+  /* font-style: italic; */
+}
+.user-table {
+  font-size: 15px !important;
+}
+.auth-card {
+  padding: 10px;
+  background-color: white;
+  margin: auto;
+}
+@media only screen and (max-width: 1000px) {
+  .formTextInput {
+    width: 100%;
+  }
+  .auth-card {
+    padding: 2px;
+  }
+  
+}

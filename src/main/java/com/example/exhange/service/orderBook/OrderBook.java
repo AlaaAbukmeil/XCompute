@@ -8,6 +8,7 @@ import java.util.PriorityQueue;
 
 import org.springframework.stereotype.Service;
 
+import com.example.exchange.model.OrderBookSummary;
 import com.example.exchange.model.OrderRequest;
 
 @Service
@@ -145,6 +146,35 @@ public class OrderBook {
     } else {
       throw new IllegalStateException("No orders in the order book");
     }
+  }
+
+  public OrderBookSummary getOrderBookSummary() {
+    List<OrderBookSummary.OrderSummary> topBuys = new ArrayList<>();
+    List<OrderBookSummary.OrderSummary> lowestSells = new ArrayList<>();
+
+    // Get top 5 buy orders
+    PriorityQueue<OrderRequest> tempBuyOrders = new PriorityQueue<>(buyOrders);
+    for (int i = 0; i < 5 && !tempBuyOrders.isEmpty(); i++) {
+      OrderRequest order = tempBuyOrders.poll();
+      topBuys.add(
+          new OrderBookSummary.OrderSummary(
+              order.getPrice(),
+              order.getNotionalAmount(),
+              (long) order.getPrice() * order.getNotionalAmount()));
+    }
+
+    // Get lowest 5 sell orders
+    PriorityQueue<OrderRequest> tempSellOrders = new PriorityQueue<>(sellOrders);
+    for (int i = 0; i < 5 && !tempSellOrders.isEmpty(); i++) {
+      OrderRequest order = tempSellOrders.poll();
+      lowestSells.add(
+          new OrderBookSummary.OrderSummary(
+              order.getPrice(),
+              order.getNotionalAmount(),
+              (long) order.getPrice() * order.getNotionalAmount()));
+    }
+
+    return new OrderBookSummary(topBuys, lowestSells);
   }
 }
 
