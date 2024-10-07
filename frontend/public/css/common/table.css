@@ -1,0 +1,81 @@
+table {
+ 
+  border-collapse: collapse;
+  margin: 0;
+  padding: 0 !important;
+  width: 100%;
+  table-layout: fixed;
+}
+.table>:not(caption)>*>* {
+  padding: 2px !important;
+}
+table caption {
+  font-size: 20px;
+  margin: 0.5em 0 0.75em;
+}
+
+.small-table-cell{
+  width: 30px !important;
+
+}
+
+.medium-wide-table-cell {
+  
+}
+
+.wider-table-cell {
+  width: 80px !important;
+}
+table th {
+  font-size: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.decimal-align {
+  display: flex;
+  justify-content: flex-end;
+}
+.integer-part {
+  text-align: right;
+}
+.decimal-part {
+  text-align: left;
+}
+.dot {
+  width: 10px; /* Adjust the width as needed */
+}
+.sticky-top {
+  background-color: white;
+  /* hack for IE: */
+
+  position: sticky;
+  z-index: 8;
+  
+ 
+  top: 0;
+  /* border: 2px solid #000; */
+}
+
+.context-menue-text {
+  color: black;
+}
+
+.sum-row td{
+
+  font-size: 8px;
+}
+@media only screen and (max-width: 1000px) {
+  .wider-table-cell {
+    width: 40px !important;
+  }
+  .table>:not(caption)>*>* {
+    padding: 0px !important;
+  }
+  .medium-table-cell {
+  width: 30px !important;
+  }
+  .small-table-cell{
+    width: 17px !important;
+  }
+}

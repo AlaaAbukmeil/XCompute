@@ -2,9 +2,12 @@
 package com.example.exchange.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,7 @@ public class OrderBook {
   private final PriorityQueue<OrderRequest> sellOrders =
       new PriorityQueue<>(
           Comparator.comparingLong(OrderRequest::getPrice).thenComparing(OrderRequest::getId));
+  private final Queue<OrderRequest> lastTenFulfilledOrders = new LinkedList<>();
 
   public List<Trade> insertOrder(OrderRequest order) {
     List<Trade> trades = new ArrayList<>();
@@ -107,7 +111,17 @@ public class OrderBook {
     buyOrder.notionalAmount -= tradeAmount;
     sellOrder.notionalAmount -= tradeAmount;
 
-    return new Trade(buyOrder.id, sellOrder.id, tradeAmount, tradePrice);
+    List<Integer> testOriginalAmount =
+        Arrays.asList(buyOrder.getOriginalNotionalAmount(), sellOrder.getOriginalNotionalAmount());
+    System.out.println("Original amounts: " + testOriginalAmount);
+
+    return new Trade(
+        buyOrder.id,
+        sellOrder.id,
+        tradeAmount,
+        tradePrice,
+        buyOrder.getOriginalNotionalAmount(),
+        sellOrder.getOriginalNotionalAmount());
   }
 
   private void processFullyFulfilledOrder(OrderRequest order) {
@@ -115,6 +129,11 @@ public class OrderBook {
     // For example, you can save it to a database or perform any other necessary operations
     System.out.println("Order fully fulfilled and removed from order book: " + order.id);
     // Add your database processing logic here
+    lastTenFulfilledOrders.offer(order);
+    // If the queue size exceeds 10, remove the oldest element
+    if (lastTenFulfilledOrders.size() > 10) {
+      lastTenFulfilledOrders.poll();
+    }
   }
 
   public OrderRequest getHighestBuyOrder() {
@@ -158,9 +177,7 @@ public class OrderBook {
       OrderRequest order = tempBuyOrders.poll();
       topBuys.add(
           new OrderBookSummary.OrderSummary(
-              order.getPrice(),
-              order.getNotionalAmount(),
-              (long) order.getPrice() * order.getNotionalAmount()));
+              order.getPrice(), order.getNotionalAmount(), order.getOriginalNotionalAmount()));
     }
 
     // Get lowest 5 sell orders
@@ -169,12 +186,10 @@ public class OrderBook {
       OrderRequest order = tempSellOrders.poll();
       lowestSells.add(
           new OrderBookSummary.OrderSummary(
-              order.getPrice(),
-              order.getNotionalAmount(),
-              (long) order.getPrice() * order.getNotionalAmount()));
+              order.getPrice(), order.getNotionalAmount(), order.getOriginalNotionalAmount()));
     }
 
-    return new OrderBookSummary(topBuys, lowestSells);
+    return new OrderBookSummary(topBuys, lowestSells, symbol, lastTenFulfilledOrders);
   }
 }
 
@@ -183,11 +198,21 @@ class Trade {
   String sellOrderId;
   int amount;
   long price;
+  int originalBuyAmount;
+  int originalSellAmount;
 
-  public Trade(String buyOrderId, String sellOrderId, int amount, long price) {
+  public Trade(
+      String buyOrderId,
+      String sellOrderId,
+      int amount,
+      long price,
+      int originalBuyAmount,
+      int originalSellAmount) {
     this.buyOrderId = buyOrderId;
     this.sellOrderId = sellOrderId;
     this.amount = amount;
     this.price = price;
+    this.originalBuyAmount = originalBuyAmount;
+    this.originalSellAmount = originalSellAmount;
   }
 }

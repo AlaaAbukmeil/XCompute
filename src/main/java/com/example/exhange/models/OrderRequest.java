@@ -9,11 +9,14 @@ public class OrderRequest {
 
   public OrderType type;
   public int notionalAmount;
+  public int originalNotionalAmount;
   public String id;
   public long price;
   public String symbol;
 
-  public OrderRequest() {}
+  public OrderRequest() {
+    this.originalNotionalAmount = 0;
+  }
 
   // Constructor with fields
   public OrderRequest(OrderType type, int notionalAmount, String id, long price, String symbol) {
@@ -22,10 +25,15 @@ public class OrderRequest {
     this.id = id;
     this.price = price;
     this.symbol = symbol;
+    this.originalNotionalAmount = notionalAmount;
   }
 
   public int getNotionalAmount() {
     return notionalAmount;
+  }
+
+  public int getOriginalNotionalAmount() {
+    return originalNotionalAmount;
   }
 
   public long getPrice() {
@@ -43,6 +51,8 @@ public class OrderRequest {
         + type
         + ", notionalAmount="
         + notionalAmount
+        + ", originalNotionalAmount="
+        + originalNotionalAmount
         + ", price="
         + price
         + '}';

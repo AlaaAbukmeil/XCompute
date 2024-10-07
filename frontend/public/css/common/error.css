@@ -1,0 +1,37 @@
+.error-svg-text {
+  margin: auto;
+  width: 100%;
+}
+.error-svg-text-des {
+  text-align: justify;
+  font-weight: 400;
+  font-size: 15px;
+}
+.error-container {
+  text-align: justify;
+  font-weight: 400;
+  width: 90%;
+  margin: auto;
+  font-size: 15px;
+}
+.error-svg-container {
+  padding-top: 50px;
+  padding-bottom: 50px;
+
+  margin: auto;
+  text-align: center;
+}
+
+@keyframes rotateAnimation {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+}
+
+.rotating-svg {
+  animation: rotateAnimation 2s linear infinite;
+}

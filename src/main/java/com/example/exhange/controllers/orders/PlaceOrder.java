@@ -1,6 +1,7 @@
 /* (C)2024 */
 package com.example.exchange.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -121,15 +122,22 @@ public class PlaceOrder {
 
   @GetMapping("/books")
   @RequiresAuth
-  public ResponseEntity<String> getBooksSummary(
-      @RequestParam(defaultValue = "AAPL") String symbol) {
+  public ResponseEntity<String> getAllBooksSummary() {
+    String[] symbols = {"AAPL", "GOOGL", "MSFT", "AMZN", "FB"};
+    Map<String, OrderBookSummary> allBooks = new HashMap<>();
+
     try {
-      OrderBook orderBook = orderBookConfig.getOrderBook(symbol);
-      OrderBookSummary orderBookSummary = orderBook.getOrderBookSummary();
-      String jsonOrderBook = objectMapper.writeValueAsString(orderBookSummary);
-      return ResponseEntity.ok(jsonOrderBook);
+      for (String symbol : symbols) {
+        OrderBook orderBook = orderBookConfig.getOrderBook(symbol);
+        OrderBookSummary orderBookSummary = orderBook.getOrderBookSummary();
+        allBooks.put(symbol, orderBookSummary);
+      }
+
+      String jsonAllBooks = objectMapper.writeValueAsString(allBooks);
+      return ResponseEntity.ok(jsonAllBooks);
     } catch (Exception e) {
-      return ResponseEntity.internalServerError().body("Error submitting order");
+      return ResponseEntity.internalServerError()
+          .body("Error retrieving order books: " + e.getMessage());
     }
   }
 }

@@ -101,8 +101,11 @@ public class OrderService {
         System.out.println("Inserting order for symbol: " + order.symbol);
 
         if (orderBook != null) {
-          List<Trade> trades = orderBook.insertOrder(order);
-          System.out.println("Sent order: " + order.id + " for " + order.symbol);
+          // Create a new OrderRequest with the original notional amount set
+          OrderRequest newOrder =
+              new OrderRequest(
+                  order.type, order.notionalAmount, order.id, order.price, order.symbol);
+          List<Trade> trades = orderBook.insertOrder(newOrder);
           printTrades(trades);
         } else {
           System.out.println("Error: No order book found for symbol " + order.symbol);
