@@ -7,12 +7,18 @@ import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.example.exchange.service.KafkaProducer;
 import com.example.exchange.service.OrderBook;
 
 @Configuration
 public class OrderBookConfig {
 
   private Map<String, OrderBook> orderBooks;
+  private final KafkaProducer kafkaProducerService;
+
+  public OrderBookConfig(KafkaProducer kafkaProducerService) {
+    this.kafkaProducerService = kafkaProducerService;
+  }
 
   @Bean
   public Map<String, OrderBook> orderBooks() {

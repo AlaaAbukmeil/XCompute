@@ -12,3 +12,5 @@ bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
 brew services start postgresql
 //redis
 brew services start redis
+//see all sockets
+ netstat -an | grep LISTEN

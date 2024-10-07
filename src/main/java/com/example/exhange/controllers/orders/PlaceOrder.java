@@ -17,7 +17,6 @@ import com.example.exchange.annotation.RequiresAuth;
 import com.example.exchange.config.OrderBookConfig;
 import com.example.exchange.model.OrderBookSummary;
 import com.example.exchange.model.OrderRequest;
-import com.example.exchange.model.User;
 import com.example.exchange.repo.RepositoryExample;
 import com.example.exchange.service.KafkaProducer;
 import com.example.exchange.service.OrderBook;
@@ -49,15 +48,6 @@ public class PlaceOrder {
     this.jwtUtil = jwtUtil;
     this.kafkaProducer = kafkaProducer;
     this.orderBookConfig = orderBookConfig;
-  }
-
-  @PostMapping("/order")
-  public ResponseEntity<String> placeOrder(@RequestBody OrderRequest orderRequest) {
-    // Your order processing logic here
-    System.out.println("Received order: " + orderRequest);
-    User testUser = new User("id", "email", "password");
-
-    return ResponseEntity.ok(testUser.toString());
   }
 
   @GetMapping("/users")
