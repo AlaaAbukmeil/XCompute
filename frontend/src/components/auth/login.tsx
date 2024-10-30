@@ -45,7 +45,7 @@ function Login() {
   return (
     <div>
       <div className="container mt-5">
-        <h1>XCompute</h1>
+        <h1 style={{color:"green"}}>XCompute</h1>
       </div>
 
       <div className="row">
