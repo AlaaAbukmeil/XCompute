@@ -1,51 +1,31 @@
 /* (C)2024 */
 package com.example.exchange.jni;
 
+import java.io.File;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+@Component
 public class MatchingEngineJNI {
-  static {
+  private final String libraryPath;
+
+  public MatchingEngineJNI(@Value("${native.library.path}") String libraryPath) {
+    this.libraryPath = libraryPath;
+    loadLibrary();
+  }
+
+  private void loadLibrary() {
     try {
-      System.loadLibrary("matching_engine");
-    } catch (UnsatisfiedLinkError e) {
-      System.err.println("Native code library failed to load. \n" + e);
-      System.exit(1);
+      File libFile = new File(libraryPath, "libmatching_engine.dylib");
+      if (!libFile.exists()) {
+        throw new RuntimeException("Library file not found: " + libFile.getAbsolutePath());
+      }
+      System.load(libFile.getAbsolutePath());
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to load native library", e);
     }
   }
 
-  // Native methods
-  public native void initializeEngine(String symbol);
-
-  public native void addOrder(String orderId, long price, int quantity, boolean isBuy);
-
-  public native Trade[] matchOrders();
-
-  public native OrderBookSummary getOrderBookSummary();
-
-  // Java representation of C++ structures
-  public static class Trade {
-    public String buyOrderId;
-    public String sellOrderId;
-    public int amount;
-    public long price;
-    public int originalBuyAmount;
-    public int originalSellAmount;
-
-    // Constructor and getters/setters
-  }
-
-  public static class OrderBookSummary {
-    public OrderSummary[] topBuys;
-    public OrderSummary[] lowestSells;
-    public String symbol;
-    public String[] lastTenFulfilledOrders;
-
-    // Constructor and getters/setters
-
-    public static class OrderSummary {
-      public long price;
-      public int quantity;
-      public int originalQuantity;
-
-      // Constructor and getters/setters
-    }
-  }
+  public native String printHello();
 }
