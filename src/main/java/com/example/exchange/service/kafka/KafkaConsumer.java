@@ -52,14 +52,4 @@ public class KafkaConsumer {
     String jsonSummary = objectMapper.writeValueAsString(update);
     webSocketHandler.broadcastUpdate(jsonSummary);
   }
-
-  @KafkaListener(topics = "print-order-books", groupId = "order-processing-group")
-  public void printOrderBooks() throws Exception {
-    orderService.printAllOrderBookStatuses();
-  }
-
-  @KafkaListener(topics = "order-book-updates", groupId = "order-book-group")
-  public void consume(String message) throws JsonProcessingException {
-    webSocketHandler.broadcastUpdate(message);
-  }
 }

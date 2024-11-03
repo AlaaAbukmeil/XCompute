@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.exchange.model.OrderBookSummary;
 import com.example.exchange.model.OrderRequest;
+import com.example.exchange.model.Trade;
 
 @Service
 public class OrderBook {
@@ -32,14 +33,15 @@ public class OrderBook {
   private final PriorityQueue<OrderRequest> sellOrders =
       new PriorityQueue<>(
           Comparator.comparingLong(OrderRequest::getPrice).thenComparing(OrderRequest::getId));
+
   private final Queue<OrderRequest> lastTenFulfilledOrders = new LinkedList<>();
 
   public List<Trade> insertOrder(OrderRequest order) {
     List<Trade> trades = new ArrayList<>();
 
-    if (order.type == OrderRequest.OrderType.BUY) {
+    if (order.type == "BUY") {
       trades.addAll(matchBuyOrder(order));
-    } else if (order.type == OrderRequest.OrderType.SELL) {
+    } else if (order.type == "SELL") {
       trades.addAll(matchSellOrder(order));
     } else {
       throw new IllegalArgumentException("Invalid order type");
@@ -136,37 +138,6 @@ public class OrderBook {
     }
   }
 
-  public OrderRequest getHighestBuyOrder() {
-    return buyOrders.peek();
-  }
-
-  public OrderRequest getLowestSellOrder() {
-    return sellOrders.peek();
-  }
-
-  public int getBuyOrdersSize() {
-    return buyOrders.size();
-  }
-
-  public int getSellOrdersSize() {
-    return sellOrders.size();
-  }
-
-  public long getCurrentPrice() {
-    OrderRequest highestBuy = getHighestBuyOrder();
-    OrderRequest lowestSell = getLowestSellOrder();
-
-    if (highestBuy != null && lowestSell != null) {
-      return (highestBuy.getPrice() + lowestSell.getPrice()) / 2;
-    } else if (highestBuy != null) {
-      return highestBuy.getPrice();
-    } else if (lowestSell != null) {
-      return lowestSell.getPrice();
-    } else {
-      throw new IllegalStateException("No orders in the order book");
-    }
-  }
-
   public OrderBookSummary getOrderBookSummary() {
     List<OrderBookSummary.OrderSummary> topBuys = new ArrayList<>();
     List<OrderBookSummary.OrderSummary> lowestSells = new ArrayList<>();
@@ -190,29 +161,5 @@ public class OrderBook {
     }
 
     return new OrderBookSummary(topBuys, lowestSells, symbol, lastTenFulfilledOrders);
-  }
-}
-
-class Trade {
-  String buyOrderId;
-  String sellOrderId;
-  int amount;
-  long price;
-  int originalBuyAmount;
-  int originalSellAmount;
-
-  public Trade(
-      String buyOrderId,
-      String sellOrderId,
-      int amount,
-      long price,
-      int originalBuyAmount,
-      int originalSellAmount) {
-    this.buyOrderId = buyOrderId;
-    this.sellOrderId = sellOrderId;
-    this.amount = amount;
-    this.price = price;
-    this.originalBuyAmount = originalBuyAmount;
-    this.originalSellAmount = originalSellAmount;
   }
 }

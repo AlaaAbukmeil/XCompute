@@ -1,5 +1,5 @@
 /* (C)2024 */
-package com.example.exchange.repo;
+package com.example.exchange.db;
 
 import java.util.List;
 import java.util.Map;

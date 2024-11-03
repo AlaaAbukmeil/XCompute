@@ -20,7 +20,7 @@ BUILD_DIR = build
 LIB_DIR = lib
 
 # Files
-SRC = $(SRC_DIR)/MatchingEngine.cpp $(SRC_DIR)/com_example_exchange_jni_MatchingEngineJNI.cpp
+SRC = $(SRC_DIR)/MatchingEngine.cpp $(SRC_DIR)/com_example_exchange_jni_MatchingEngineJNI.cpp $(SRC_DIR)/logs.cpp
 OBJ = $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRC))
 
 # Target library name (for MacOS)

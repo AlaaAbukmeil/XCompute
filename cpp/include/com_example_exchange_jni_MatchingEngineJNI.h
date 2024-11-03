@@ -9,12 +9,13 @@ extern "C"
 {
 #endif
 
-  JNIEXPORT jlong JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_createOrderBook(JNIEnv *, jobject, jstring);
+  JNIEXPORT jlong JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_createMatchingEngine(JNIEnv *, jobject, jstring);
 
   JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_printHello(JNIEnv *, jobject);
 
-  JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_insertOrder(JNIEnv *, jobject, jlong, jstring, jstring, jlong, jint, jint);
-  JNIEXPORT void JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_deleteOrderBook(JNIEnv *env, jobject obj, jlong ptr);
+  JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_insertOrder(JNIEnv *, jobject, jlong, jstring, jstring, jint, jint, jint);
+  JNIEXPORT void JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_deleteMatchingEngine(JNIEnv *env, jobject obj, jlong ptr);
+  
 #ifdef __cplusplus
 }
 #endif

@@ -1,24 +1,23 @@
 #include "MatchingEngine.h"
-#include <string>
+#include "utils.h"
 
 string MatchingEngine::printHello()
 {
     return "Hello from C++, 2!";
 }
 
-vector<Trade> MatchingEngine::insertOrder(OrderRequest& order)
+vector<Trade> MatchingEngine::insertOrder(OrderRequest &order)
 {
     vector<Trade> trades;
-    if (order.type == OrderRequest::OrderType::BUY)
+    // logToFile("order.type == BUY");
+    if (order.type == "BUY")
     {
-        // sth
-        vector<Trade> buyTrades;
+        vector<Trade> buyTrades = matchBuyOrder(order);
         trades.insert(trades.end(), buyTrades.begin(), buyTrades.end());
     }
-    else if (order.type == OrderRequest::OrderType::SELL)
+    else if (order.type == "SELL")
     {
-        // sth
-        vector<Trade> sellTrades;
+        vector<Trade> sellTrades = matchSellOrder(order);
         trades.insert(trades.end(), sellTrades.begin(), sellTrades.end());
     }
     else
@@ -29,10 +28,10 @@ vector<Trade> MatchingEngine::insertOrder(OrderRequest& order)
     return trades;
 }
 
-vector<Trade> MatchingEngine::matchBuyOrder(OrderRequest buyOrder)
+vector<Trade> MatchingEngine::matchBuyOrder(OrderRequest& buyOrder)
 {
     vector<Trade> trades;
-    while (!sellOrders.empty() && buyOrder.getPrice() > sellOrders.top().getPrice())
+    while (!sellOrders.empty() && buyOrder.notionalAmount > 0 && buyOrder.getPrice() >= sellOrders.top().getPrice())
     {
         OrderRequest sellOrder = sellOrders.top();
         sellOrders.pop();
@@ -60,10 +59,10 @@ vector<Trade> MatchingEngine::matchBuyOrder(OrderRequest buyOrder)
     return trades;
 }
 
-vector<Trade> MatchingEngine::matchSellOrder(OrderRequest sellOrder)
+vector<Trade> MatchingEngine::matchSellOrder(OrderRequest& sellOrder)
 {
     vector<Trade> trades;
-    while (!buyOrders.empty() && sellOrder.getPrice() < buyOrders.top().getPrice())
+    while (!buyOrders.empty() && sellOrder.notionalAmount > 0 && sellOrder.getPrice() <= buyOrders.top().getPrice())
     {
         OrderRequest buyOrder = buyOrders.top();
         buyOrders.pop();
@@ -92,7 +91,7 @@ vector<Trade> MatchingEngine::matchSellOrder(OrderRequest sellOrder)
     return trades;
 }
 
-Trade MatchingEngine::executeTrade(OrderRequest buyOrder, OrderRequest sellOrder)
+Trade MatchingEngine::executeTrade(OrderRequest& buyOrder, OrderRequest& sellOrder)
 {
     long tradePrice = sellOrder.price;
     int tradeAmount = min(buyOrder.notionalAmount, sellOrder.notionalAmount);
@@ -118,7 +117,7 @@ void MatchingEngine::processFullyFulfilledOrder(OrderRequest order)
     }
 }
 
-OrderBookSummary MatchingEngine::getOrderBookSummary()
+OrderBookSummary MatchingEngine::getMatchingEngineSummary()
 {
     OrderBookSummary summary;
     summary.symbol = symbol;
@@ -131,7 +130,7 @@ OrderBookSummary MatchingEngine::getOrderBookSummary()
         summary.topBuys.emplace_back(
             order.getPrice(),
             order.getNotionalAmount(),
-            order.getOriginalNotionalAmount());
+            order.getOriginalNotionalAmount(), order.getId());
         tempBuyOrders.pop();
     }
 
@@ -142,7 +141,7 @@ OrderBookSummary MatchingEngine::getOrderBookSummary()
         summary.lowestSells.emplace_back(
             order.getPrice(),
             order.getNotionalAmount(),
-            order.getOriginalNotionalAmount());
+            order.getOriginalNotionalAmount(), order.getId());
         tempSellOrders.pop();
     }
 

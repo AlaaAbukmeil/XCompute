@@ -2,16 +2,12 @@
 package com.example.exchange.model;
 
 public class OrderRequest {
-  public enum OrderType {
-    BUY,
-    SELL
-  }
 
-  public OrderType type;
+  public String type;
   public int notionalAmount;
   public int originalNotionalAmount;
   public String id;
-  public long price;
+  public int price;
   public String symbol;
 
   public OrderRequest() {
@@ -19,7 +15,7 @@ public class OrderRequest {
   }
 
   // Constructor with fields
-  public OrderRequest(OrderType type, int notionalAmount, String id, long price, String symbol) {
+  public OrderRequest(String type, int notionalAmount, String id, int price, String symbol) {
     this.type = type;
     this.notionalAmount = notionalAmount;
     this.id = id;
@@ -36,7 +32,7 @@ public class OrderRequest {
     return originalNotionalAmount;
   }
 
-  public long getPrice() {
+  public int getPrice() {
     return price;
   }
 

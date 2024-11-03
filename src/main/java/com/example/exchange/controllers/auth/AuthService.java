@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.exchange.annotation.RequiresAuth;
+import com.example.exchange.db.RepositoryExample;
 import com.example.exchange.model.AuthModels;
 import com.example.exchange.model.CookieModel;
-import com.example.exchange.repo.RepositoryExample;
 import com.example.exchange.util.JwtUtil;
 import com.example.exchange.util.PasswordHasher;
 import com.fasterxml.jackson.databind.ObjectMapper;

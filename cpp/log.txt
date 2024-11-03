@@ -1,0 +1,16 @@
+[Sun Nov  3 20:17:23 2024] === New Order Request ===
+[Sun Nov  3 20:17:23 2024] Received order type string: 'SELL'
+[Sun Nov  3 20:17:23 2024] order.type == BUY
+[Sun Nov  3 20:17:23 2024] Order Details:
+[Sun Nov  3 20:17:23 2024]   ID: 123456789
+[Sun Nov  3 20:17:23 2024]   Price: 99
+[Sun Nov  3 20:17:23 2024]   Amount: 1002
+[Sun Nov  3 20:17:23 2024]   Original Amount: 0
+[Sun Nov  3 20:17:29 2024] === New Order Request ===
+[Sun Nov  3 20:17:29 2024] Received order type string: 'BUY'
+[Sun Nov  3 20:17:29 2024] order.type == BUY
+[Sun Nov  3 20:17:29 2024] Order Details:
+[Sun Nov  3 20:17:29 2024]   ID: 123456789
+[Sun Nov  3 20:17:29 2024]   Price: 99
+[Sun Nov  3 20:17:29 2024]   Amount: 1002
+[Sun Nov  3 20:17:29 2024]   Original Amount: 0

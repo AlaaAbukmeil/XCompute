@@ -13,32 +13,26 @@ using namespace std;
 class OrderRequest
 {
 public:
-    enum OrderType
-    {
-        BUY,
-        SELL
-    };
-
-    OrderType type;
+    string type;
     int notionalAmount;
     int originalNotionalAmount;
     string id;
     int price;
     string symbol;
 
-    OrderRequest() : type(BUY),
+    OrderRequest() : type("BUY"),
                      notionalAmount(0),
                      originalNotionalAmount(0),
                      id(""),
                      price(0),
                      symbol("") {}
 
-    OrderRequest(OrderType t, int amount, int originalNotionalAmount, string orderId, int p, string sym) : type(t),
-                                                                                                           notionalAmount(amount),
-                                                                                                           originalNotionalAmount(originalNotionalAmount),
-                                                                                                           id(orderId),
-                                                                                                           price(p),
-                                                                                                           symbol(sym)
+    OrderRequest(string t, int amount, int originalNotionalAmount, string orderId, int p, string sym) : type(t == "BUY" ? "BUY" : "SELL"),
+                                                                                                        notionalAmount(amount),
+                                                                                                        originalNotionalAmount(originalNotionalAmount),
+                                                                                                        id(orderId),
+                                                                                                        price(p),
+                                                                                                        symbol(sym)
     {
     }
 
@@ -47,15 +41,17 @@ public:
     const string &getSymbol() const { return symbol; }
     int getNotionalAmount() const { return notionalAmount; }
     int getOriginalNotionalAmount() const { return originalNotionalAmount; }
-    OrderType getType() const { return type; }
+    string getType() const { return type; }
     string print() const
     {
-        return "Order Details: Type: " + string(type == BUY ? "BUY" : "SELL") +
-               " ID: " + id +
-               " Price: " + to_string(price) +
-               " Amount: " + to_string(notionalAmount) +
-               " Original Amount: " + to_string(originalNotionalAmount) +
-               " Symbol: " + symbol;
+        std::stringstream ss;
+        ss << "Order Details: Type: " << (type == "BUY" ? "BUY" : "SELL")
+           << " ID: " << id
+           << " Price: " << price
+           << " Amount: " << notionalAmount
+           << " Original Amount: " << originalNotionalAmount
+           << " Symbol: " << symbol;
+        return ss.str();
     }
 };
 
@@ -148,8 +144,9 @@ public:
         long price;
         int notional;
         int originalAmount;
+        string id;
 
-        OrderSummary(long a = 0, int b = 0, int c = 0) : price(a), notional(b), originalAmount(c) {}
+        OrderSummary(long a = 0, int b = 0, int c = 0, string d = "") : price(a), notional(b), originalAmount(c), id(d) {}
     };
     OrderBookSummary() {};
     OrderBookSummary(const vector<OrderSummary> &buys,
@@ -164,27 +161,51 @@ public:
     string toCompactString() const
     {
         stringstream ss;
-        ss << symbol << "|";
+        ss << "Symbol: " << symbol << "\n";
 
-        // Top buys
-        for (const auto &buy : topBuys)
+        // Buy trades section
+        ss << "Top Buys:\n";
+        if (topBuys.empty())
         {
-            ss << buy.price << "," << buy.notional << "," << buy.originalAmount << ";";
+            ss << "  No buy trades\n";
         }
-        ss << "|";
-
-        // Lowest sells
-        for (const auto &sell : lowestSells)
+        else
         {
-            ss << sell.price << "," << sell.notional << "," << sell.originalAmount << ";";
+            for (const auto &trade : topBuys)
+            {
+                ss << "  Buy #" << trade.id
+                   << "\n    Notional: " << trade.notional
+                   << "\n    Price: " << trade.price
+                   << "\n";
+            }
         }
-        ss << "|";
 
-        // Last trades
-        for (const auto &trade : lastTenFulfilledOrders)
+        // Sell trades section
+        ss << "\nLowest Sells:\n";
+        if (lowestSells.empty())
         {
-            ss << trade.id << "," << trade.id << ","
-               << trade.price << "," << trade.notionalAmount << ";";
+            ss << "  No sell trades\n";
+        }
+        else
+        {
+            for (const auto &trade : lowestSells)
+            {
+                ss << "  Sell #" << trade.id
+                   << "\n    Notional: " << trade.notional
+                   << "\n    Price: " << trade.price
+                   << "\n";
+            }
+        }
+        if (!lastTenFulfilledOrders.empty())
+        {
+            for (const auto &trade : lastTenFulfilledOrders)
+            {
+                ss << "  Completed #" << trade.id
+                   << "\n    Notional: " << trade.notionalAmount
+                   << "\n    Price: " << trade.price
+                   << "\n    Type: " << trade.type
+                   << "\n";
+            }
         }
 
         return ss.str();
@@ -201,7 +222,7 @@ public:
 
     string printHello();
     vector<Trade> insertOrder(OrderRequest &order);
-    OrderBookSummary getOrderBookSummary();
+    OrderBookSummary getMatchingEngineSummary();
     string getSymbol()
     {
         return symbol;
@@ -212,9 +233,9 @@ private:
     priority_queue<OrderRequest, vector<OrderRequest>, SellOrderCompare> sellOrders;
     deque<OrderRequest> lastTenFulfilledOrders;
     const size_t MAX_SIZE = 10;
-    vector<Trade> matchBuyOrder(OrderRequest buyOrder);
-    vector<Trade> matchSellOrder(OrderRequest sellOrder);
-    Trade executeTrade(OrderRequest buyOrder, OrderRequest sellOrder);
+    vector<Trade> matchBuyOrder(OrderRequest& buyOrder);
+    vector<Trade> matchSellOrder(OrderRequest& sellOrder);
+    Trade executeTrade(OrderRequest& buyOrder, OrderRequest& sellOrder);
     void processFullyFulfilledOrder(OrderRequest order);
 };
 

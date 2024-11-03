@@ -6,8 +6,12 @@ import java.io.File;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.example.exchange.model.OrderBookSummary;
+
+import jakarta.annotation.PreDestroy;
+
 @Component
-public class MatchingEngineJNI {
+public class MatchingEngineJNI implements AutoCloseable {
   private final String libraryPath;
 
   public MatchingEngineJNI(@Value("${native.library.path}") String libraryPath) {
@@ -27,5 +31,25 @@ public class MatchingEngineJNI {
     }
   }
 
+  public native long createMatchingEngine(String symbol);
+
+  public native String insertOrder(
+      long handle, String id, String type, int price, int amount, int originalAmount);
+
+  public native OrderBookSummary getMatchingEngineSummary(long handle);
+
   public native String printHello();
+
+  private long nativePtr;
+
+  public native void deleteMatchingEngine(long ptr);
+
+  @PreDestroy
+  @Override
+  public void close() {
+    if (nativePtr != 0) {
+      deleteMatchingEngine(nativePtr);
+      nativePtr = 0;
+    }
+  }
 }
