@@ -6,8 +6,6 @@ import java.io.File;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.example.exchange.model.OrderBookSummary;
-
 import jakarta.annotation.PreDestroy;
 
 @Component
@@ -36,7 +34,7 @@ public class MatchingEngineJNI implements AutoCloseable {
   public native String insertOrder(
       long handle, String id, String type, int price, int amount, int originalAmount);
 
-  public native OrderBookSummary getMatchingEngineSummary(long handle);
+  public native String getMatchingEngineSummary(long handle);
 
   public native String printHello();
 

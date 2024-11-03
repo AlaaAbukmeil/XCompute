@@ -9,6 +9,7 @@ JAVA_HOME = /opt/homebrew/Cellar/openjdk@21/21.0.4/libexec/openjdk.jdk/Contents/
 CXXFLAGS += -I$(JAVA_HOME)/include
 CXXFLAGS += -I$(JAVA_HOME)/include/darwin
 CXXFLAGS += -Iinclude
+CXXFLAGS += -I/opt/homebrew/include
 
 # Library flags
 LDFLAGS = -shared -arch arm64

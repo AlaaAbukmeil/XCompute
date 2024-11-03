@@ -7,6 +7,7 @@
 #include <queue>
 #include <stdexcept>
 #include <sstream>
+#include <nlohmann/json.hpp>
 
 using namespace std;
 

@@ -42,4 +42,14 @@ public class MatchingEngine {
 
     return ResponseEntity.ok(trades);
   }
+
+  @GetMapping("/matching-engine-summary")
+  public ResponseEntity<String> getSummary(@RequestBody OrderRequest orderRequest) {
+
+    long pointer = matchingEngineConfig.getMatchingEnginePointer(orderRequest.symbol);
+
+    String summary = matchingEngineJNI.getMatchingEngineSummary(pointer);
+
+    return ResponseEntity.ok(summary);
+  }
 }

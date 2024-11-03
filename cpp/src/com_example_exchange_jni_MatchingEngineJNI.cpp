@@ -48,9 +48,6 @@ JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_insert
 
     string OrderType = jstring2string(env, type);
 
-    // logToFile("=== New Order Request ===");
-    // logToFile("Received order type string: '" + OrderType + "'");
-
     OrderRequest order = OrderRequest(
         OrderType,
         amount,
@@ -60,12 +57,6 @@ JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_insert
         engine->getSymbol());
     engine->insertOrder(order);
     OrderBookSummary summary = engine->getMatchingEngineSummary();
-
-    // logToFile("Order Details:");
-    // logToFile("  ID: " + jstring2string(env, id));
-    // logToFile("  Price: " + to_string(price));
-    // logToFile("  Amount: " + to_string(amount));
-    // logToFile("  Original Amount: " + to_string(originalAmount));
 
     string result = summary.toCompactString();
     return cpp2jstring(env, result);
@@ -83,5 +74,61 @@ JNIEXPORT void JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_deleteMat
     MatchingEngine *engine = reinterpret_cast<MatchingEngine *>(ptr);
     delete engine;
     Logger::cleanup();
+  }
+}
+JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_getMatchingEngineSummary(JNIEnv *env, jobject obj, jlong ptr)
+{
+  if (ptr == 0)
+  {
+    return env->NewStringUTF("{}");
+  }
+
+  try
+  {
+    MatchingEngine *engine = reinterpret_cast<MatchingEngine *>(ptr);
+    OrderBookSummary summary = engine->getMatchingEngineSummary();
+
+    nlohmann::json j;
+    j["symbol"] = summary.symbol;
+
+    j["topBuys"] = nlohmann::json::array();
+    for (const auto &buy : summary.topBuys)
+    {
+      nlohmann::json buyOrder = {
+          {"id", buy.id},
+          {"price", buy.price},
+          {"notional", buy.notional},
+          {"originalAmount", buy.originalAmount}};
+      j["topBuys"].push_back(buyOrder);
+    }
+
+    j["lowestSells"] = nlohmann::json::array();
+    for (const auto &sell : summary.lowestSells)
+    {
+      nlohmann::json sellOrder = {
+          {"id", sell.id},
+          {"price", sell.price},
+          {"notional", sell.notional},
+          {"originalAmount", sell.originalAmount}};
+      j["lowestSells"].push_back(sellOrder);
+    }
+
+    j["lastTenFulfilledOrders"] = nlohmann::json::array();
+    for (const auto &order : summary.lastTenFulfilledOrders)
+    {
+      nlohmann::json fulfilledOrder = {
+          {"id", order.id},
+          {"price", order.price},
+          {"notionalAmount", order.notionalAmount},
+          {"type", order.type}};
+      j["lastTenFulfilledOrders"].push_back(fulfilledOrder);
+    }
+
+    string jsonStr = j.dump();
+    return cpp2jstring(env, jsonStr);
+  }
+  catch (const std::exception &e)
+  {
+    return cpp2jstring(env, "{\"error\": \"Failed to create JSON\"}");
   }
 }
