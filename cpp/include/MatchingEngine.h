@@ -241,7 +241,7 @@ private:
     vector<Trade> matchBuyOrder(OrderRequest& buyOrder);
     vector<Trade> matchSellOrder(OrderRequest& sellOrder);
     Trade executeTrade(OrderRequest& buyOrder, OrderRequest& sellOrder);
-    void processFullyFulfilledOrder(OrderRequest order);
+    void processFullyFulfilledOrder(OrderRequest& order);
 };
 
 #endif // MATCHING_ENGINE_H

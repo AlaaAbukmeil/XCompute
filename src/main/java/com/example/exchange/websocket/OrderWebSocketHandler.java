@@ -69,7 +69,7 @@ public class OrderWebSocketHandler extends TextWebSocketHandler {
 
   @Override
   public void afterConnectionEstablished(WebSocketSession session) {
-    System.out.println("New WebSocket connection established: " + session.getId());
+    // System.out.println("New WebSocket connection established: " + session.getId());
     sessions.add(session);
   }
 }

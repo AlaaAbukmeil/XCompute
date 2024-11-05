@@ -17,19 +17,19 @@ public class OrderBookWebSocketHandler extends TextWebSocketHandler {
 
   @Override
   public void afterConnectionEstablished(WebSocketSession session) {
-    System.out.println("New WebSocket connection established: " + session.getId());
+    // System.out.println("New WebSocket connection established: " + session.getId());
     sessions.add(session);
   }
 
   @Override
   public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-    System.out.println("WebSocket connection closed: ");
+    // System.out.println("WebSocket connection closed: ");
 
     sessions.remove(session);
   }
 
   public void broadcastUpdate(String message) {
-    System.out.println("Broadcasting update: " + message);
+    // System.out.println("Broadcasting update: " + message);
     TextMessage textMessage = new TextMessage(message);
     sessions.forEach(
         session -> {

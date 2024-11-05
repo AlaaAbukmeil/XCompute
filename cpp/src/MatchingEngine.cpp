@@ -113,15 +113,15 @@ Trade MatchingEngine::executeTrade(OrderRequest &buyOrder, OrderRequest &sellOrd
         sellOrder.getOriginalNotionalAmount());
 }
 
-void MatchingEngine::processFullyFulfilledOrder(OrderRequest order)
+void MatchingEngine::processFullyFulfilledOrder(OrderRequest& order)
 {
-    lastTenFulfilledOrders.push_back(order);
     // logToFile("fulfiled order id" + order.getId() + " with original notional: "+to_string(order.getOriginalNotionalAmount()));
 
-    if (lastTenFulfilledOrders.size() > 10)
+    if (lastTenFulfilledOrders.size() >= 10)
     {
         lastTenFulfilledOrders.pop_front();
     }
+    lastTenFulfilledOrders.emplace_back(std::move(order));
 }
 
 OrderBookSummary MatchingEngine::getMatchingEngineSummary()
@@ -142,7 +142,7 @@ OrderBookSummary MatchingEngine::getMatchingEngineSummary()
         tempBuyOrders.pop();
     }
 
-    auto tempSellOrders = sellOrders; // Create a copy
+    auto tempSellOrders = sellOrders; 
     for (int i = 0; i < 5 && !tempSellOrders.empty(); i++)
     {
         const OrderRequest &order = tempSellOrders.top();
