@@ -31,8 +31,7 @@ public class MatchingEngineJNI implements AutoCloseable {
 
   public native long createMatchingEngine(String symbol);
 
-  public native String insertOrder(
-      long handle, String id, String type, int price, int amount, int originalAmount);
+  public native String insertOrder(long handle, String id, String type, int price, int amount);
 
   public native String getMatchingEngineSummary(long handle);
 

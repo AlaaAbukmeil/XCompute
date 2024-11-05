@@ -13,7 +13,7 @@ extern "C"
 
   JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_printHello(JNIEnv *, jobject);
 
-  JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_insertOrder(JNIEnv *, jobject, jlong, jstring, jstring, jint, jint, jint);
+  JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_insertOrder(JNIEnv *, jobject, jlong, jstring, jstring, jint, jint);
   JNIEXPORT void JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_deleteMatchingEngine(JNIEnv *env, jobject obj, jlong ptr);
   JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_getMatchingEngineSummary(JNIEnv *env, jobject obj, jlong ptr);
   

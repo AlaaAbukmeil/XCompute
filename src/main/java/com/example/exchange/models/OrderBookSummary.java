@@ -21,6 +21,10 @@ public class OrderBookSummary {
     this.lastTenFulfilledOrders = lastTenFulfilledOrders;
   }
 
+  public String getSymbol() {
+    return symbol;
+  }
+
   public static class OrderSummary {
     public long price;
     public int notional;

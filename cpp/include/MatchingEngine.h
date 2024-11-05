@@ -64,7 +64,7 @@ private:
     int amount;
     long price;
     int originalBuyAmount;
-    int originalSellAmount;
+    const int originalSellAmount;
 
 public:
     Trade() : buyOrderId(""),
@@ -144,10 +144,10 @@ public:
     public:
         long price;
         int notional;
-        int originalAmount;
+        const int originalAmount;
         string id;
 
-        OrderSummary(long a = 0, int b = 0, int c = 0, string d = "") : price(a), notional(b), originalAmount(c), id(d) {}
+        OrderSummary(long a, int b, int c, string d) : price(a), notional(b), originalAmount(c), id(d) {}
     };
     OrderBookSummary() {};
     OrderBookSummary(const vector<OrderSummary> &buys,
@@ -176,6 +176,8 @@ public:
             {
                 ss << "  Buy #" << trade.id
                    << "\n    Notional: " << trade.notional
+                   << "\n    Original Notional: " << trade.originalAmount
+
                    << "\n    Price: " << trade.price
                    << "\n";
             }
@@ -193,6 +195,7 @@ public:
             {
                 ss << "  Sell #" << trade.id
                    << "\n    Notional: " << trade.notional
+                   << "\n    Original Notional: " << trade.originalAmount
                    << "\n    Price: " << trade.price
                    << "\n";
             }
@@ -203,6 +206,7 @@ public:
             {
                 ss << "  Completed #" << trade.id
                    << "\n    Notional: " << trade.notionalAmount
+                   << "\n    Original Notional: " << trade.originalNotionalAmount
                    << "\n    Price: " << trade.price
                    << "\n    Type: " << trade.type
                    << "\n";

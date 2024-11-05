@@ -9,7 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import com.example.exchange.config.OrderBookConfig;
+import com.example.exchange.config.MatchingEngineConfig;
+import com.example.exchange.jni.MatchingEngineJNI;
 import com.example.exchange.model.OrderBookSummary;
 import com.example.exchange.model.OrderRequest;
 import com.example.exchange.websocket.OrderBookWebSocketHandler;
@@ -22,17 +23,21 @@ public class KafkaConsumer {
   private final ObjectMapper objectMapper;
   private final OrderService orderService;
   private final OrderBookWebSocketHandler webSocketHandler;
-  private final OrderBookConfig orderBookConfig;
+  private final MatchingEngineConfig matchingEngineConfig;
+  private final MatchingEngineJNI matchingEngineJNI;
+  private Map<String, OrderBookSummary> update = new HashMap<>();
 
   public KafkaConsumer(
       ObjectMapper objectMapper,
       OrderService orderService,
       OrderBookWebSocketHandler webSocketHandler,
-      OrderBookConfig orderBookConfig) {
+      MatchingEngineConfig matchingEngineConfig,
+      MatchingEngineJNI matchingEngineJNI) {
     this.objectMapper = objectMapper;
     this.orderService = orderService;
     this.webSocketHandler = webSocketHandler;
-    this.orderBookConfig = orderBookConfig;
+    this.matchingEngineConfig = matchingEngineConfig;
+    this.matchingEngineJNI = matchingEngineJNI;
   }
 
   @KafkaListener(topics = "test", groupId = "myGroup")
@@ -43,12 +48,12 @@ public class KafkaConsumer {
   @KafkaListener(topics = "orders", groupId = "order-processing-group")
   public void processOrder(String orderJson) throws JsonProcessingException {
     OrderRequest order = objectMapper.readValue(orderJson, OrderRequest.class);
-    orderService.processOrder(order);
-    OrderBook orderBook = orderBookConfig.getOrderBook(order.symbol);
-    OrderBookSummary orderBookSummary = orderBook.getOrderBookSummary();
-    Map<String, OrderBookSummary> update = new HashMap<>();
-    update.put(order.symbol, orderBookSummary);
+    long pointer = matchingEngineConfig.getMatchingEnginePointer(order.symbol);
+    orderService.processOrder(order, pointer);
+    String summary = matchingEngineJNI.getMatchingEngineSummary(pointer);
 
+    OrderBookSummary orderBookSummary = objectMapper.readValue(summary, OrderBookSummary.class);
+    update.put(order.symbol, orderBookSummary);
     String jsonSummary = objectMapper.writeValueAsString(update);
     webSocketHandler.broadcastUpdate(jsonSummary);
   }

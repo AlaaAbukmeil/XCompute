@@ -40,7 +40,7 @@ JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_printH
   return env->NewStringUTF(result.c_str());
 }
 
-JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_insertOrder(JNIEnv *env, jobject thisObj, jlong handle, jstring id, jstring type, jint price, jint amount, jint originalAmount)
+JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_insertOrder(JNIEnv *env, jobject thisObj, jlong handle, jstring id, jstring type, jint price, jint amount)
 {
   try
   {
@@ -51,10 +51,11 @@ JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_insert
     OrderRequest order = OrderRequest(
         OrderType,
         amount,
-        originalAmount,
+        amount,
         jstring2string(env, id),
         price,
         engine->getSymbol());
+
     engine->insertOrder(order);
     OrderBookSummary summary = engine->getMatchingEngineSummary();
 
@@ -76,6 +77,7 @@ JNIEXPORT void JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_deleteMat
     Logger::cleanup();
   }
 }
+
 JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_getMatchingEngineSummary(JNIEnv *env, jobject obj, jlong ptr)
 {
   if (ptr == 0)
@@ -119,7 +121,7 @@ JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_getMat
       nlohmann::json fulfilledOrder = {
           {"id", order.id},
           {"price", order.price},
-          {"notionalAmount", order.notionalAmount},
+          {"notionalAmount", order.originalNotionalAmount},
           {"type", order.type}};
       j["lastTenFulfilledOrders"].push_back(fulfilledOrder);
     }

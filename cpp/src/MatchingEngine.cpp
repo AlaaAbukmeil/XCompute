@@ -9,16 +9,21 @@ string MatchingEngine::printHello()
 vector<Trade> MatchingEngine::insertOrder(OrderRequest &order)
 {
     vector<Trade> trades;
-    // logToFile("order.type == BUY");
     if (order.type == "BUY")
     {
         vector<Trade> buyTrades = matchBuyOrder(order);
-        trades.insert(trades.end(), buyTrades.begin(), buyTrades.end());
+        for (auto &&trade : buyTrades)
+        {
+            trades.emplace_back(move(trade));
+        }
     }
     else if (order.type == "SELL")
     {
         vector<Trade> sellTrades = matchSellOrder(order);
-        trades.insert(trades.end(), sellTrades.begin(), sellTrades.end());
+        for (auto &&trade : sellTrades)
+        {
+            trades.emplace_back(move(trade));
+        }
     }
     else
     {
@@ -28,7 +33,7 @@ vector<Trade> MatchingEngine::insertOrder(OrderRequest &order)
     return trades;
 }
 
-vector<Trade> MatchingEngine::matchBuyOrder(OrderRequest& buyOrder)
+vector<Trade> MatchingEngine::matchBuyOrder(OrderRequest &buyOrder)
 {
     vector<Trade> trades;
     while (!sellOrders.empty() && buyOrder.notionalAmount > 0 && buyOrder.getPrice() >= sellOrders.top().getPrice())
@@ -59,7 +64,7 @@ vector<Trade> MatchingEngine::matchBuyOrder(OrderRequest& buyOrder)
     return trades;
 }
 
-vector<Trade> MatchingEngine::matchSellOrder(OrderRequest& sellOrder)
+vector<Trade> MatchingEngine::matchSellOrder(OrderRequest &sellOrder)
 {
     vector<Trade> trades;
     while (!buyOrders.empty() && sellOrder.notionalAmount > 0 && sellOrder.getPrice() <= buyOrders.top().getPrice())
@@ -91,7 +96,7 @@ vector<Trade> MatchingEngine::matchSellOrder(OrderRequest& sellOrder)
     return trades;
 }
 
-Trade MatchingEngine::executeTrade(OrderRequest& buyOrder, OrderRequest& sellOrder)
+Trade MatchingEngine::executeTrade(OrderRequest &buyOrder, OrderRequest &sellOrder)
 {
     long tradePrice = sellOrder.price;
     int tradeAmount = min(buyOrder.notionalAmount, sellOrder.notionalAmount);
@@ -111,6 +116,8 @@ Trade MatchingEngine::executeTrade(OrderRequest& buyOrder, OrderRequest& sellOrd
 void MatchingEngine::processFullyFulfilledOrder(OrderRequest order)
 {
     lastTenFulfilledOrders.push_back(order);
+    // logToFile("fulfiled order id" + order.getId() + " with original notional: "+to_string(order.getOriginalNotionalAmount()));
+
     if (lastTenFulfilledOrders.size() > 10)
     {
         lastTenFulfilledOrders.pop_front();
@@ -130,7 +137,8 @@ OrderBookSummary MatchingEngine::getMatchingEngineSummary()
         summary.topBuys.emplace_back(
             order.getPrice(),
             order.getNotionalAmount(),
-            order.getOriginalNotionalAmount(), order.getId());
+            order.getOriginalNotionalAmount(),
+            order.getId());
         tempBuyOrders.pop();
     }
 

@@ -37,8 +37,7 @@ public class MatchingEngine {
             orderRequest.id,
             orderRequest.type,
             orderRequest.price,
-            orderRequest.notionalAmount,
-            orderRequest.originalNotionalAmount);
+            orderRequest.notionalAmount);
 
     return ResponseEntity.ok(trades);
   }

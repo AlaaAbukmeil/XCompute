@@ -4,7 +4,7 @@ import NavBar from "../../common/navbar";
 interface StockData {
   topBuys: { price: number; notional: number }[];
   lowestSells: { price: number; notional: number }[];
-  lastTenFulfilledOrders: { type: string; notionalAmount: number; originalNotionalAmount: number; id: string; price: number; symbol: string }[];
+  lastTenFulfilledOrders: { type: string; notionalAmount: number; id: string; price: number; symbol: string }[];
 }
 
 interface StockCardProps {
@@ -51,6 +51,7 @@ const StockCard: React.FC<StockCardProps> = ({ stock, symbol }) => {
                 <thead>
                   <tr>
                     <th scope="col">BUY/SELL</th>
+                    <th scope="col">ID</th>
                     <th scope="col">Notional</th>
                     <th scope="col">Price</th>
                   </tr>
@@ -59,7 +60,8 @@ const StockCard: React.FC<StockCardProps> = ({ stock, symbol }) => {
                   {stock.lastTenFulfilledOrders.map((matchedTrade, index) => (
                     <tr key={index}>
                       <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.type}</td>
-                      <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.originalNotionalAmount}</td>
+                      <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.id.slice(-5)}</td>
+                      <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.notionalAmount}</td>
                       <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.price}</td>
                     </tr>
                   ))}
