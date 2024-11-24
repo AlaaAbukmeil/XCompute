@@ -37,7 +37,7 @@ out/
 .vscode/
 
 .env
-
+cpp/redis-plus-plus
 test.py
 
 productionTesting/

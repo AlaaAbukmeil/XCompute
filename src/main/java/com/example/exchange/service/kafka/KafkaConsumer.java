@@ -7,6 +7,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.example.exchange.config.MatchingEngineConfig;
@@ -16,7 +17,6 @@ import com.example.exchange.model.OrderRequest;
 import com.example.exchange.websocket.OrderBookWebSocketHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.scheduling.annotation.Scheduled;
 
 @Service
 public class KafkaConsumer {
@@ -52,28 +52,23 @@ public class KafkaConsumer {
     OrderRequest order = objectMapper.readValue(orderJson, OrderRequest.class);
     long pointer = matchingEngineConfig.getMatchingEnginePointer(order.symbol);
     orderService.processOrder(order, pointer);
-    // String summary = matchingEngineJNI.getMatchingEngineSummary(pointer);
-
-    // OrderBookSummary orderBookSummary = objectMapper.readValue(summary, OrderBookSummary.class);
-    // update.put(order.symbol, orderBookSummary);
-    // String jsonSummary = objectMapper.writeValueAsString(update);
-    // webSocketHandler.broadcastUpdate(jsonSummary);
   }
+
   @Scheduled(fixedRate = 1000) // 1000ms = 1 second
   public void broadcastUpdates() {
-      try {
-        for(String symbol :symbols){
-          long pointer = matchingEngineConfig.getMatchingEnginePointer(symbol);
-          String summary = matchingEngineJNI.getMatchingEngineSummary(pointer);
-          OrderBookSummary orderBookSummary = objectMapper.readValue(summary, OrderBookSummary.class);
-          update.put(symbol, orderBookSummary);
-          String jsonSummary = objectMapper.writeValueAsString(update);
-          webSocketHandler.broadcastUpdate(jsonSummary);
-        }
-          
-      } catch (JsonProcessingException e) {
-          // Handle exception
-
+    try {
+      for (String symbol : symbols) {
+        long pointer = matchingEngineConfig.getMatchingEnginePointer(symbol);
+        String summary = matchingEngineJNI.getMatchingEngineSummary(pointer);
+        OrderBookSummary orderBookSummary = objectMapper.readValue(summary, OrderBookSummary.class);
+        update.put(symbol, orderBookSummary);
+        String jsonSummary = objectMapper.writeValueAsString(update);
+        webSocketHandler.broadcastUpdate(jsonSummary);
       }
+
+    } catch (JsonProcessingException e) {
+      // Handle exception
+
+    }
   }
 }

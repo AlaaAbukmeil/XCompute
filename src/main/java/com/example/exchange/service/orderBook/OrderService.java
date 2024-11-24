@@ -33,7 +33,6 @@ public class OrderService {
     if (Boolean.TRUE.equals(isNewOrder)) {
       try {
 
-
         if (pointer != -1) {
           matchingEngineJNI.insertOrder(
               pointer, order.id, order.type, order.price, order.notionalAmount);
@@ -46,5 +45,9 @@ public class OrderService {
     } else {
       System.out.println("Duplicate order detected: " + order.id);
     }
+  }
+
+  public RedisTemplate<String, String> getRedisTemplate() {
+    return this.redisTemplate;
   }
 }
