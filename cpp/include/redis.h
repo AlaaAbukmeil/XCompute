@@ -46,4 +46,5 @@ public:
     sw::redis::Redis *getRedis() { return redis.get(); }
     bool get(const std::string &key, std::string &value);
     void setex(const std::string &key, int seconds, const std::string &value);
+    bool set(const std::string &key, const std::string &value);
 };

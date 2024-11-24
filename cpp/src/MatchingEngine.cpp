@@ -9,6 +9,8 @@ string MatchingEngine::printHello()
 
 vector<Trade> MatchingEngine::insertOrder(OrderRequest &order)
 {
+    // logToFile("try to insert order: " + order.id);
+
     vector<Trade> trades;
     if (order.type == "BUY")
     {
@@ -30,6 +32,7 @@ vector<Trade> MatchingEngine::insertOrder(OrderRequest &order)
     {
         throw invalid_argument("Invalid order type");
     }
+    // logToFile("finished to insert order: " + order.id);
 
     return trades;
 }
@@ -109,58 +112,49 @@ Trade MatchingEngine::executeTrade(OrderRequest &buyOrder, OrderRequest &sellOrd
     auto minute_timestamp = std::chrono::duration_cast<std::chrono::minutes>(
                                 now.time_since_epoch())
                                 .count() *
-                            60000; // Convert to milliseconds but rounded to minute
+                            60000;
 
-    std::string minuteKey = fmt::format("candle:{}:{}", buyOrder.symbol, minute_timestamp);
-
+    std::string symbolKey = fmt::format("candle:{}", buyOrder.symbol);
     auto redis = RedisClient::getInstance();
 
-    std::string existingCandle;
-    bool exists = redis->get(minuteKey, existingCandle);
+    std::string existingCandles;
+    bool exists = redis->get(symbolKey, existingCandles);
 
-    double min_price, max_price;
-
-    if (exists)
-    {
-        // Parse existing candle data
-        try
-        {
-            auto candleData = nlohmann::json::parse(existingCandle);
-            // Ensure both values are double for comparison
-            double existing_min = candleData["min"].get<double>();
-            double existing_max = candleData["max"].get<double>();
-            double current_price = static_cast<double>(buyOrder.price);
-
-            min_price = std::min<double>(existing_min, current_price);
-            max_price = std::max<double>(existing_max, current_price);
-        }
-        catch (...)
-        {
-            min_price = max_price = static_cast<double>(buyOrder.price);
+    nlohmann::json candlesData;
+    if (exists) {
+        try {
+            candlesData = nlohmann::json::parse(existingCandles);
+        } catch (...) {
+            candlesData = nlohmann::json::object();
         }
     }
-    else
-    {
-        // First trade for this minute
-        min_price = max_price = static_cast<double>(buyOrder.price);
-    }
-    // Update candle data
-    std::time_t time = minute_timestamp / 1000; // Convert from ms to seconds
+
+    // Create datetime string for current minute
+    std::time_t time = minute_timestamp / 1000;
     std::tm *tm = std::localtime(&time);
     std::ostringstream datetime_ss;
     datetime_ss << std::put_time(tm, "%d-%m-%Y %H:%M");
     std::string formatted_datetime = datetime_ss.str();
 
-    std::string candleJson = fmt::format(
-        R"({{"symbol":"{}","min":{},"max":{},"timestamp":{},"datetime":"{}"}})",
-        buyOrder.symbol,
-        min_price,
-        max_price,
-        minute_timestamp,
-        formatted_datetime);
+    double current_price = static_cast<double>(buyOrder.price);
+    
+    // Update min/max for current minute
+    if (candlesData.contains(formatted_datetime)) {
+        double existing_min = candlesData[formatted_datetime]["min"].get<double>();
+        double existing_max = candlesData[formatted_datetime]["max"].get<double>();
+        candlesData[formatted_datetime]["min"] = std::min(existing_min, current_price);
+        candlesData[formatted_datetime]["max"] = std::max(existing_max, current_price);
+    } else {
+        candlesData[formatted_datetime] = {
+            {"symbol", buyOrder.symbol},
+            {"min", current_price},
+            {"max", current_price},
+            {"timestamp", minute_timestamp}
+        };
+    }
 
-    // Store candle data with 1-hour expiration
-    redis->setex(minuteKey, 3600, candleJson);
+    // Store updated candles data
+    redis->set(symbolKey, candlesData.dump());
 
     // Store trade data as before
     std::string tradeJson = fmt::format(
@@ -180,7 +174,6 @@ Trade MatchingEngine::executeTrade(OrderRequest &buyOrder, OrderRequest &sellOrd
         buyOrder.getOriginalNotionalAmount(),
         sellOrder.getOriginalNotionalAmount());
 }
-
 void MatchingEngine::processFullyFulfilledOrder(OrderRequest &order)
 {
 

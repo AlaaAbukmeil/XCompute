@@ -11,33 +11,44 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-import com.example.exchange.websocket.OrderBookWebSocketHandler;
 import com.example.exchange.websocket.OrderWebSocketHandler;
+import com.example.exchange.websocket.OrderBookWebSocketHandler;
+
+import com.example.exchange.websocket.PriceChartsWebSocketHandler;
 
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
-  private final OrderBookWebSocketHandler orderBookWebSocketHandler;
   private final OrderWebSocketHandler orderWebSocketHandler;
+  private final PriceChartsWebSocketHandler priceChartsSocketHandler;
+  private final OrderBookWebSocketHandler orderBookWebSocketHandler;
+
   private static final Logger logger = LoggerFactory.getLogger(WebSocketConfig.class);
 
   @Autowired
   public WebSocketConfig(
-      OrderBookWebSocketHandler orderBookWebSocketHandler,
-      OrderWebSocketHandler orderWebSocketHandler) {
-    this.orderBookWebSocketHandler = orderBookWebSocketHandler;
+      OrderWebSocketHandler orderWebSocketHandler,
+      PriceChartsWebSocketHandler priceChartsSocketHandler,
+      OrderBookWebSocketHandler orderBookWebSocketHandler
+      
+      ) {
     this.orderWebSocketHandler = orderWebSocketHandler;
+    this.priceChartsSocketHandler = priceChartsSocketHandler;
+    this.orderBookWebSocketHandler = orderBookWebSocketHandler;
+
   }
 
   @Override
   public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
     System.out.println("Registering WebSocket handlers");
     logger.info("Registering WebSocket handlers");
+    registry.addHandler(orderWebSocketHandler, "/websocket/orders").setAllowedOrigins("*");
+    logger.info("WebSocket handler registered for path: /websocket/orders");
     registry.addHandler(orderBookWebSocketHandler, "/websocket/orderbook").setAllowedOrigins("*");
     logger.info("WebSocket handler registered for path: /websocket/orderbook");
-    registry.addHandler(orderWebSocketHandler, "/websocket/ordes").setAllowedOrigins("*");
-    logger.info("WebSocket handler registered for path: /websocket/ordes");
+    registry.addHandler(priceChartsSocketHandler, "/websocket/minute-price-charts").setAllowedOrigins("*");
+    logger.info("WebSocket handler registered for path: /websocket/minute-price-charts");
   }
 
   @PostConstruct
