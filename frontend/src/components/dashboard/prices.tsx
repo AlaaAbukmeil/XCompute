@@ -21,7 +21,7 @@ interface Messages {
   [symbol: string]: OrderBookSummary;
 }
 
-const useWebSocket = (url: string) => {
+export const useWebSocket = (url: string) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<Messages>({});
 
@@ -70,7 +70,6 @@ const useWebSocket = (url: string) => {
 
 const Dashboard: React.FC = () => {
   const { messages, sendMessage } = useWebSocket('ws://localhost:8081/api/websocket/orderbook');
-  console.log({messages});
 
   return (
     <div>

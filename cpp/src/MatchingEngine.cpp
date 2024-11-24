@@ -133,7 +133,7 @@ Trade MatchingEngine::executeTrade(OrderRequest &buyOrder, OrderRequest &sellOrd
     std::time_t time = minute_timestamp / 1000;
     std::tm *tm = std::localtime(&time);
     std::ostringstream datetime_ss;
-    datetime_ss << std::put_time(tm, "%d-%m-%Y %H:%M");
+    datetime_ss << std::put_time(tm, "%Y-%m-%d %H:%M");
     std::string formatted_datetime = datetime_ss.str();
 
     double current_price = static_cast<double>(buyOrder.price);
