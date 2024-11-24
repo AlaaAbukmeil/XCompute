@@ -16,6 +16,7 @@ import com.example.exchange.model.OrderRequest;
 import com.example.exchange.websocket.OrderBookWebSocketHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.scheduling.annotation.Scheduled;
 
 @Service
 public class KafkaConsumer {
@@ -26,6 +27,7 @@ public class KafkaConsumer {
   private final MatchingEngineConfig matchingEngineConfig;
   private final MatchingEngineJNI matchingEngineJNI;
   private Map<String, OrderBookSummary> update = new HashMap<>();
+  String[] symbols = {"AAPL", "GOOGL", "MSFT", "AMZN", "FB"};
 
   public KafkaConsumer(
       ObjectMapper objectMapper,
@@ -50,11 +52,28 @@ public class KafkaConsumer {
     OrderRequest order = objectMapper.readValue(orderJson, OrderRequest.class);
     long pointer = matchingEngineConfig.getMatchingEnginePointer(order.symbol);
     orderService.processOrder(order, pointer);
-    String summary = matchingEngineJNI.getMatchingEngineSummary(pointer);
+    // String summary = matchingEngineJNI.getMatchingEngineSummary(pointer);
 
-    OrderBookSummary orderBookSummary = objectMapper.readValue(summary, OrderBookSummary.class);
-    update.put(order.symbol, orderBookSummary);
-    String jsonSummary = objectMapper.writeValueAsString(update);
-    webSocketHandler.broadcastUpdate(jsonSummary);
+    // OrderBookSummary orderBookSummary = objectMapper.readValue(summary, OrderBookSummary.class);
+    // update.put(order.symbol, orderBookSummary);
+    // String jsonSummary = objectMapper.writeValueAsString(update);
+    // webSocketHandler.broadcastUpdate(jsonSummary);
+  }
+  @Scheduled(fixedRate = 1000) // 1000ms = 1 second
+  public void broadcastUpdates() {
+      try {
+        for(String symbol :symbols){
+          long pointer = matchingEngineConfig.getMatchingEnginePointer(symbol);
+          String summary = matchingEngineJNI.getMatchingEngineSummary(pointer);
+          OrderBookSummary orderBookSummary = objectMapper.readValue(summary, OrderBookSummary.class);
+          update.put(symbol, orderBookSummary);
+          String jsonSummary = objectMapper.writeValueAsString(update);
+          webSocketHandler.broadcastUpdate(jsonSummary);
+        }
+          
+      } catch (JsonProcessingException e) {
+          // Handle exception
+
+      }
   }
 }

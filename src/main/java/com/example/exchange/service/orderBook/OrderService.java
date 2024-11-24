@@ -33,7 +33,6 @@ public class OrderService {
     if (Boolean.TRUE.equals(isNewOrder)) {
       try {
 
-        System.out.println("Inserting order for symbol: " + order.symbol);
 
         if (pointer != -1) {
           matchingEngineJNI.insertOrder(

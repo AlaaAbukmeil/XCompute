@@ -57,10 +57,7 @@ JNIEXPORT jstring JNICALL Java_com_example_exchange_jni_MatchingEngineJNI_insert
         engine->getSymbol());
 
     engine->insertOrder(order);
-    OrderBookSummary summary = engine->getMatchingEngineSummary();
-
-    string result = summary.toCompactString();
-    return cpp2jstring(env, result);
+    return cpp2jstring(env, "");
   }
   catch (const exception &e)
   {
