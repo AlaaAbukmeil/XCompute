@@ -1,1 +1,2 @@
 # XCompute
+XCompute is a stock exchange that aims to process trades more efficiently than established stock exchanges such as Nasdaq/Binance. XCompute focuses on ultra-low latency development while having a robust infrastructure that ensures the fulfillment of stock orders.
