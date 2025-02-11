@@ -44,7 +44,6 @@ public class OrderWebSocketHandler extends TextWebSocketHandler {
       OrderRequest orderRequest = objectMapper.readValue(message.getPayload(), OrderRequest.class);
       kafkaProducer.sendOrder("orders", orderRequest);
 
-      // Send confirmation back to client
       String responseJson =
           objectMapper.writeValueAsString(
               Map.of(
@@ -55,7 +54,6 @@ public class OrderWebSocketHandler extends TextWebSocketHandler {
                   "orderRequest",
                   orderRequest));
 
-      // Send confirmation back to client
       session.sendMessage(new TextMessage(responseJson));
     } catch (Exception e) {
       logger.error("Error processing order", e);

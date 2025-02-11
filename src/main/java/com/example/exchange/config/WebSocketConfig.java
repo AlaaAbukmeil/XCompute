@@ -11,9 +11,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-import com.example.exchange.websocket.OrderWebSocketHandler;
 import com.example.exchange.websocket.OrderBookWebSocketHandler;
-
+import com.example.exchange.websocket.OrderWebSocketHandler;
 import com.example.exchange.websocket.PriceChartsWebSocketHandler;
 
 @Configuration
@@ -30,13 +29,11 @@ public class WebSocketConfig implements WebSocketConfigurer {
   public WebSocketConfig(
       OrderWebSocketHandler orderWebSocketHandler,
       PriceChartsWebSocketHandler priceChartsSocketHandler,
-      OrderBookWebSocketHandler orderBookWebSocketHandler
-      
-      ) {
+      OrderBookWebSocketHandler orderBookWebSocketHandler) {
+
     this.orderWebSocketHandler = orderWebSocketHandler;
     this.priceChartsSocketHandler = priceChartsSocketHandler;
     this.orderBookWebSocketHandler = orderBookWebSocketHandler;
-
   }
 
   @Override
@@ -47,7 +44,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
     logger.info("WebSocket handler registered for path: /websocket/orders");
     registry.addHandler(orderBookWebSocketHandler, "/websocket/orderbook").setAllowedOrigins("*");
     logger.info("WebSocket handler registered for path: /websocket/orderbook");
-    registry.addHandler(priceChartsSocketHandler, "/websocket/minute-price-charts").setAllowedOrigins("*");
+    registry
+        .addHandler(priceChartsSocketHandler, "/websocket/minute-price-charts")
+        .setAllowedOrigins("*");
     logger.info("WebSocket handler registered for path: /websocket/minute-price-charts");
   }
 

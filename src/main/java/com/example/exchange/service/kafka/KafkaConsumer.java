@@ -1,12 +1,9 @@
 /* (C)2024 */
 package com.example.exchange.service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Comparator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -62,7 +59,7 @@ public class KafkaConsumer {
 
   @KafkaListener(topics = "orders", groupId = "order-processing-group")
   public void processOrder(String orderJson) throws JsonProcessingException {
-    
+
     OrderRequest order = objectMapper.readValue(orderJson, OrderRequest.class);
     // logger.info("Trying to insert order: " + order.id);
     long pointer = matchingEngineConfig.getMatchingEnginePointer(order.symbol);
@@ -89,27 +86,27 @@ public class KafkaConsumer {
 
   @Scheduled(fixedRate = 1000)
   public void broadcastPriceUpdates() {
-      try {
-          ObjectNode allSymbolsData = objectMapper.createObjectNode();
-  
-          for (String symbol : symbols) {
-              String symbolKey = "candle:" + symbol;
-              String candlesJson = redisTemplate.opsForValue().get(symbolKey);
-              
-              if (candlesJson != null) {
-                  JsonNode candlesNode = objectMapper.readTree(candlesJson);
-                  allSymbolsData.set(symbol, candlesNode);
-              } else {
-                  // If no data exists for the symbol, set an empty object
-                  allSymbolsData.set(symbol, objectMapper.createObjectNode());
-              }
-          }
-  
-          String priceUpdatesJson = objectMapper.writeValueAsString(allSymbolsData);
-          priceChartsSocketHandler.broadcastUpdate(priceUpdatesJson);
-  
-      } catch (Exception e) {
-          logger.error("Error broadcasting price updates: ", e);
+    try {
+      ObjectNode allSymbolsData = objectMapper.createObjectNode();
+
+      for (String symbol : symbols) {
+        String symbolKey = "candle:" + symbol;
+        String candlesJson = redisTemplate.opsForValue().get(symbolKey);
+
+        if (candlesJson != null) {
+          JsonNode candlesNode = objectMapper.readTree(candlesJson);
+          allSymbolsData.set(symbol, candlesNode);
+        } else {
+          // If no data exists for the symbol, set an empty object
+          allSymbolsData.set(symbol, objectMapper.createObjectNode());
+        }
       }
+
+      String priceUpdatesJson = objectMapper.writeValueAsString(allSymbolsData);
+      priceChartsSocketHandler.broadcastUpdate(priceUpdatesJson);
+
+    } catch (Exception e) {
+      logger.error("Error broadcasting price updates: ", e);
+    }
   }
 }

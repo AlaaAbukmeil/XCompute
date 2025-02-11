@@ -10,6 +10,6 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaConfig {
   @Bean
   public NewTopic topicOrder() {
-    return TopicBuilder.name("orders").partitions(10).replicas(3).build();
+    return TopicBuilder.name("orders").partitions(2).replicas(1).build();
   }
 }
