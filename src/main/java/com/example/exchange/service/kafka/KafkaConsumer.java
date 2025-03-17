@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 @Service
 public class KafkaConsumer {
   private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
@@ -33,8 +37,9 @@ public class KafkaConsumer {
   private final MatchingEngineJNI matchingEngineJNI;
   private final RedisTemplate<String, String> redisTemplate;
   private Map<String, OrderBookSummary> update = new HashMap<>();
-  String[] symbols = {"AAPL", "GOOGL", "MSFT", "AMZN", "FB"};
+  private ObjectNode allPriceData;
 
+  String[] symbols = {"GOOGL"};
   public KafkaConsumer(
       ObjectMapper objectMapper,
       OrderService orderService,
@@ -42,7 +47,9 @@ public class KafkaConsumer {
       PriceChartsWebSocketHandler priceChartsSocketHandler,
       MatchingEngineConfig matchingEngineConfig,
       MatchingEngineJNI matchingEngineJNI,
-      RedisTemplate<String, String> redisTemplate) {
+      RedisTemplate<String, String> redisTemplate
+      
+      ) {
     this.objectMapper = objectMapper;
     this.orderService = orderService;
     this.orderBookSocketHandler = orderBookSocketHandler;
@@ -50,6 +57,7 @@ public class KafkaConsumer {
     this.matchingEngineJNI = matchingEngineJNI;
     this.priceChartsSocketHandler = priceChartsSocketHandler;
     this.redisTemplate = redisTemplate;
+    this.allPriceData =  objectMapper.createObjectNode();
   }
 
   @KafkaListener(topics = "test", groupId = "myGroup")
@@ -64,6 +72,34 @@ public class KafkaConsumer {
     // logger.info("Trying to insert order: " + order.id);
     long pointer = matchingEngineConfig.getMatchingEnginePointer(order.symbol);
     orderService.processOrder(order, pointer);
+  }
+
+  @KafkaListener(topics = "orders_matched", groupId = "myGroup")
+  public void listenOrderSummaryUpdates(ConsumerRecord<String, String> record) throws JsonProcessingException {
+    String key = record.key();
+    String message = record.value();
+    Map<String, OrderBookSummary> newUpdateMap = objectMapper.readValue(message, 
+      new TypeReference<Map<String, OrderBookSummary>>() {}
+  );
+    update.put(key, newUpdateMap.get(key));
+    // logger.info("key: " + key + "\n\n new map: " + newUpdateMap.get(key));
+  }
+  @KafkaListener(topics = "new_prices", groupId = "myGroup")
+  public void listenNewPriceUpdates(ConsumerRecord<String, String> record) throws JsonProcessingException {
+    String key = record.key();
+    String message = record.value();
+    ObjectNode pricesData = objectMapper.readValue(message, 
+      new TypeReference<ObjectNode>() {}
+  );
+  if(pricesData.get(key) != null){
+
+    allPriceData.set(key, pricesData.get(key));
+  }else{
+    allPriceData.set(key, null);
+
+  }
+
+    logger.info("key: " + key + "\n\n new prices: " + allPriceData.get(key));
   }
 
   @Scheduled(fixedRate = 1000) // 1000ms = 1 second
@@ -87,26 +123,15 @@ public class KafkaConsumer {
   @Scheduled(fixedRate = 1000)
   public void broadcastPriceUpdates() {
     try {
-      ObjectNode allSymbolsData = objectMapper.createObjectNode();
+      
 
-      for (String symbol : symbols) {
-        String symbolKey = "candle:" + symbol;
-        String candlesJson = redisTemplate.opsForValue().get(symbolKey);
-
-        if (candlesJson != null) {
-          JsonNode candlesNode = objectMapper.readTree(candlesJson);
-          allSymbolsData.set(symbol, candlesNode);
-        } else {
-          // If no data exists for the symbol, set an empty object
-          allSymbolsData.set(symbol, objectMapper.createObjectNode());
-        }
-      }
-
-      String priceUpdatesJson = objectMapper.writeValueAsString(allSymbolsData);
+      String priceUpdatesJson = objectMapper.writeValueAsString(allPriceData);
       priceChartsSocketHandler.broadcastUpdate(priceUpdatesJson);
 
     } catch (Exception e) {
       logger.error("Error broadcasting price updates: ", e);
     }
   }
+
+ 
 }

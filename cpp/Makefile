@@ -8,7 +8,7 @@ REDIS_BUILD_DIR = $(REDIS_DIR)/build
 REDIS_INCLUDE_DIR = $(REDIS_DIR)/src
 
 # Explicit Java home for Homebrew OpenJDK
-JAVA_HOME = /opt/homebrew/Cellar/openjdk@21/21.0.4/libexec/openjdk.jdk/Contents/Home
+JAVA_HOME = /opt/homebrew/Cellar/openjdk@21/21.0.5/libexec/openjdk.jdk/Contents/Home
 
 # Include paths
 CXXFLAGS += -I$(JAVA_HOME)/include

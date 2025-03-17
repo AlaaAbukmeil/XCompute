@@ -40,8 +40,10 @@ public class WebSocketConfig implements WebSocketConfigurer {
   public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
     System.out.println("Registering WebSocket handlers");
     logger.info("Registering WebSocket handlers");
+    //recieve orders
     registry.addHandler(orderWebSocketHandler, "/websocket/orders").setAllowedOrigins("*");
     logger.info("WebSocket handler registered for path: /websocket/orders");
+    //publish results
     registry.addHandler(orderBookWebSocketHandler, "/websocket/orderbook").setAllowedOrigins("*");
     logger.info("WebSocket handler registered for path: /websocket/orderbook");
     registry

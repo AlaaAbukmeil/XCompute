@@ -26,7 +26,7 @@ public class MatchingEngineConfig {
   }
 
   private void initializeMatchingEngines() {
-    String[] symbols = {"AAPL", "GOOGL", "MSFT", "AMZN", "FB"};
+    String[] symbols = {"GOOGL"};
     for (String symbol : symbols) {
       long pointer = matchingEngineJNI.createMatchingEngine(symbol);
       matchingEngines.put(symbol, pointer);
