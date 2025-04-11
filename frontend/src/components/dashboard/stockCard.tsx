@@ -23,6 +23,7 @@ const StockCard = ({ stock, symbol }: { stock: any; symbol: string }) => {
         <OneMinuteChart symbol={symbol} />
       ) : (
         <div className="stock-card">
+          <div>{symbol}</div>
           <div className="price-lists">
             <div className="sell-prices">
               <h3>Top 5 Sell Prices</h3>
@@ -65,14 +66,16 @@ const StockCard = ({ stock, symbol }: { stock: any; symbol: string }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {stock.lastTenFulfilledOrders?stock.lastTenFulfilledOrders.map((matchedTrade: any, index: any) => (
-                      <tr key={index}>
-                        <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.type}</td>
-                        <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.id.slice(-5)}</td>
-                        <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.notionalAmount}</td>
-                        <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.price}</td>
-                      </tr>
-                    )):""}
+                    {stock.lastTenFulfilledOrders
+                      ? stock.lastTenFulfilledOrders.map((matchedTrade: any, index: any) => (
+                          <tr key={index}>
+                            <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.type}</td>
+                            <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.id.slice(-5)}</td>
+                            <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.notionalAmount}</td>
+                            <td className={matchedTrade.type === "SELL" ? "text-danger" : "text-success"}>{matchedTrade.price}</td>
+                          </tr>
+                        ))
+                      : ""}
                   </tbody>
                 </table>
               </div>

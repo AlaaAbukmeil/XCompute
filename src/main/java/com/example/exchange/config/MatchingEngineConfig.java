@@ -26,11 +26,11 @@ public class MatchingEngineConfig {
   }
 
   private void initializeMatchingEngines() {
-    String[] symbols = {"GOOGL"};
-    for (String symbol : symbols) {
-      long pointer = matchingEngineJNI.createMatchingEngine(symbol);
-      matchingEngines.put(symbol, pointer);
-    }
+    // String[] symbols = {"GOOGL"};
+    // for (String symbol : symbols) {
+    //   long pointer = matchingEngineJNI.createMatchingEngine(symbol);
+    //   matchingEngines.put(symbol, pointer);
+    // }
   }
 
   public Long getMatchingEnginePointer(String symbol) {

@@ -39,7 +39,7 @@ public class KafkaConsumer {
   private Map<String, OrderBookSummary> update = new HashMap<>();
   private ObjectNode allPriceData;
 
-  String[] symbols = {"GOOGL"};
+  String[] symbols = {"AAPL", "GOOGL"};
   public KafkaConsumer(
       ObjectMapper objectMapper,
       OrderService orderService,
@@ -65,14 +65,14 @@ public class KafkaConsumer {
     logger.warn("This is a Secret message " + message);
   }
 
-  @KafkaListener(topics = "orders", groupId = "order-processing-group")
-  public void processOrder(String orderJson) throws JsonProcessingException {
+  // @KafkaListener(topics = "orders", groupId = "order-processing-group")
+  // public void processOrder(String orderJson) throws JsonProcessingException {
 
-    OrderRequest order = objectMapper.readValue(orderJson, OrderRequest.class);
-    // logger.info("Trying to insert order: " + order.id);
-    long pointer = matchingEngineConfig.getMatchingEnginePointer(order.symbol);
-    orderService.processOrder(order, pointer);
-  }
+  //   OrderRequest order = objectMapper.readValue(orderJson, OrderRequest.class);
+  //   // logger.info("Trying to insert order: " + order.id);
+  //   long pointer = matchingEngineConfig.getMatchingEnginePointer(order.symbol);
+  //   orderService.processOrder(order, pointer);
+  // }
 
   @KafkaListener(topics = "orders_matched", groupId = "myGroup")
   public void listenOrderSummaryUpdates(ConsumerRecord<String, String> record) throws JsonProcessingException {
@@ -105,14 +105,9 @@ public class KafkaConsumer {
   @Scheduled(fixedRate = 1000) // 1000ms = 1 second
   public void broadcastUpdates() {
     try {
-      for (String symbol : symbols) {
-        long pointer = matchingEngineConfig.getMatchingEnginePointer(symbol);
-        String summary = matchingEngineJNI.getMatchingEngineSummary(pointer);
-        OrderBookSummary orderBookSummary = objectMapper.readValue(summary, OrderBookSummary.class);
-        update.put(symbol, orderBookSummary);
+      
         String jsonSummary = objectMapper.writeValueAsString(update);
         orderBookSocketHandler.broadcastUpdate(jsonSummary);
-      }
 
     } catch (JsonProcessingException e) {
       // Handle exception
